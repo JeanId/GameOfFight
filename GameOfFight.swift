@@ -112,33 +112,53 @@ class Game {
         print("\(playerLabel) : contitution de son équipe de 3 personnages")
         
         for i in 1...3 {
-            print("")
-            print("Entrez le nom du personnage numéro \(i)")
-            if let name = readLine() {
-                print("Personnage numéro \(i) : \(name)")
-                nameCharacter = name
-            }
-
-            print("""
-            Choisissez le type du personnage numéro \(i) en tapant le chiffre correspondant :
-            1. ⚔️  Warrior     L'attaquant classique (points de vie et arme équilibrés)
-            2. 🛡️  Magus       Soigne les autres membres de son équipe (points de vie élevés et arme faible en attaque)
-            3. 🔪 Colossus    Imposant et trés résistant (points de vie élevés et arme moyenne)
-            4. 🪓 Dwarf       Redoutable (Points de vie faibles et arme ravageuse)
-            """)
-
-            if let type = getCharacterType() {
-                print("Type personnage numéro \(i) : \(type.rawValue)")
-                currentPlayer.createCharacter(characterName: nameCharacter, type: type)
-            }
+            var isGoodInput = true
+            nameCharacter = inputNameCharacter(index: i)
             
+            repeat {
+                print("""
+                Choisissez le type du personnage numéro \(i) en tapant le chiffre correspondant :
+                1. ⚔️  Warrior     L'attaquant classique (points de vie et arme équilibrés)
+                2. 🛡️  Magus       Soigne les autres membres de son équipe (points de vie élevés et arme faible en attaque)
+                3. 🔪 Colossus    Imposant et trés résistant (points de vie élevés et arme moyenne)
+                4. 🪓 Dwarf       Redoutable (Points de vie faibles et arme ravageuse)
+                """)
+                
+                if let type = inputCharacterType() {
+                    print("Type personnage numéro \(i) : \(type.rawValue)")
+                    currentPlayer.createCharacter(characterName: nameCharacter, type: type)
+                    isGoodInput = true
+                } else {
+                    isGoodInput = false
+                }
+            } while (!isGoodInput)
             
         }
         
     }
+    private func inputNameCharacter(index i:Int) -> String {
+        var valid = true
+        var result = ""
+        repeat {
+            print("")
+            print("Entrez le nom du personnage numéro \(i)")
+            if let name = readLine() {
+                result = name
+                valid = true
+            } else {
+                print("Personnage numéro \(i) : caractères incorrects, réessayez")
+                valid = false
+            }
+            if valid == true {
+                valid = Character.isNewName(characterName: result)
+            }
+        } while (!valid)
+        
+        return result
+    }
     
-    func getCharacterType() -> CharacterType? {
-        var type:CharacterType = .Warior
+    private func inputCharacterType() -> CharacterType? {
+        var type:CharacterType = .Warrior
         if let choice = readLine() {
             switch choice {
                 case "1" :
