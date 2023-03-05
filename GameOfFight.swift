@@ -12,7 +12,7 @@ import Foundation
  */
 
 enum CharacterType:String {
-    case Warior, Magus, Colossus, Dwarf
+    case Warrior, Magus, Colossus, Dwarf
 }
 
 enum IdPlayer {
@@ -32,7 +32,7 @@ class Character {
         Character.listName.append(characterName)
         self.type = type
         switch type {
-        case .Warior:
+        case .Warrior:
             lifeValue = 100
             weaponValue = 20
         case .Magus :
@@ -142,7 +142,7 @@ class Game {
         if let choice = readLine() {
             switch choice {
                 case "1" :
-                type = .Warior
+                type = .Warrior
                 case "2" :
                 type = .Magus
                 case "3" :
