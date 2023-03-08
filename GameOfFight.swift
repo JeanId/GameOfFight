@@ -95,21 +95,11 @@ class Game {
     }
     
     func createTeam(player:IdPlayer) {
-        let currentIdPlayer = player
-        var playerLabel = ""
         var nameCharacter = ""
-        var currentPlayer = Player(player: player)
+        let currentPlayer = Player(player: player)
        
-        switch currentIdPlayer {
-        case .Player_A:
-            playerLabel = "Joueur A"
-            currentPlayer = playerA
-        case .Player_B:
-            playerLabel = "Joueur B"
-            currentPlayer = playerB
-        }
         print("")
-        print("\(playerLabel) : contitution de son équipe de 3 personnages")
+        print("\(getPlayerLabel(_:player)) : contitution de son équipe de 3 personnages")
         
         for i in 1...3 {
             var isGoodInput = true
@@ -136,6 +126,28 @@ class Game {
         }
         
     }
+    
+    func displayTeam(player:IdPlayer) {
+        let currentPlayer = Player(player: player)
+        
+        for character in currentPlayer.team {
+            print("Personnage : \(character.characterName) Type : \(character.type.rawValue) Points de vie : \(character.lifeValue) Force arme : \(character.weaponValue)")
+        }
+        
+    }
+                  
+    private func getPlayerLabel(_ player:IdPlayer) -> String {
+        var playerLabel = ""
+                
+        switch player {
+            case .Player_A:
+                playerLabel = "Joueur A"
+            case .Player_B:
+                playerLabel = "Joueur B"
+        }
+        return playerLabel
+    }
+                  
     private func inputNameCharacter(index i:Int) -> String {
         var valid = true
         var result = ""
@@ -189,4 +201,5 @@ class Game {
 var game = Game()
 game.sayWelcome()
 game.createTeam(player: .Player_A)
-game.createTeam(player: .Player_B)
+game.displayTeam(player: .Player_A)
+//game.createTeam(player: .Player_B)

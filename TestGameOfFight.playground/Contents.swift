@@ -8,7 +8,7 @@ import PlaygroundSupport
 import Foundation
 
 enum CharacterType:String {
-    case Warior, Magus, Colossus, Dwarf
+    case Warrior, Magus, Colossus, Dwarf
 }
 
 enum IdPlayer {
@@ -28,7 +28,7 @@ class Character {
         Character.listName.append(characterName)
         self.type = type
         switch type {
-        case .Warior:
+        case .Warrior:
             lifeValue = 100
             weaponValue = 20
         case .Magus :
@@ -91,54 +91,86 @@ class Game {
     }
     
     func createTeam(player:IdPlayer) {
-        let currentIdPlayer = player
-        var playerLabel = ""
         var nameCharacter = ""
-        var currentPlayer = Player(player: player)
+        let currentPlayer = Player(player: player)
        
-        switch currentIdPlayer {
-        case .Player_A:
-            playerLabel = "Joueur A"
-            currentPlayer = playerA
-        case .Player_B:
-            playerLabel = "Joueur B"
-            currentPlayer = playerB
-        }
         print("")
-        print("\(playerLabel) : contitution de son équipe de 3 personnages")
+        print("\(getPlayerLabel(_:player)) : contitution de son équipe de 3 personnages")
         
         for i in 1...3 {
-            print("")
-            print("Entrez le nom du personnage numéro \(i)")
-            if let name = readLine() {
-                print("Personnage numéro \(i) : \(name)")
-                nameCharacter = name
-            }
-
-            print("""
-            Choisissez le type du personnage numéro \(i) en tapant le chiffre correspondant :
-            1. ⚔️  Warrior     L'attaquant classique (points de vie et arme équilibrés)
-            2. 🛡️  Magus       Soigne les autres membres de son équipe (points de vie élevés et arme faible en attaque)
-            3. 🔪 Colossus    Imposant et trés résistant (points de vie élevés et arme moyenne)
-            4. 🪓 Dwarf       Redoutable (Points de vie faibles et arme ravageuse)
-            """)
-
-            if let type = getCharacterType() {
-                print("Type personnage numéro \(i) : \(type.rawValue)")
-                currentPlayer.createCharacter(characterName: nameCharacter, type: type)
-            }
+            var isGoodInput = true
+            nameCharacter = inputNameCharacter(index: i)
             
+            repeat {
+                print("""
+                Choisissez le type du personnage numéro \(i) en tapant le chiffre correspondant :
+                1. ⚔️  Warrior     L'attaquant classique (points de vie et arme équilibrés)
+                2. 🛡️  Magus       Soigne les autres membres de son équipe (points de vie élevés et arme faible en attaque)
+                3. 🔪 Colossus    Imposant et trés résistant (points de vie élevés et arme moyenne)
+                4. 🪓 Dwarf       Redoutable (Points de vie faibles et arme ravageuse)
+                """)
+                
+                if let type = inputCharacterType() {
+                    print("Type personnage numéro \(i) : \(type.rawValue)")
+                    currentPlayer.createCharacter(characterName: nameCharacter, type: type)
+                    isGoodInput = true
+                } else {
+                    isGoodInput = false
+                }
+            } while (!isGoodInput)
             
         }
         
     }
     
-    func getCharacterType() -> CharacterType? {
-        var type:CharacterType = .Warior
+    func displayTeam(player:IdPlayer) {
+        let currentPlayer = Player(player: player)
+        
+        for character in currentPlayer.team {
+            print("Personnage : \(character.characterName) Type : \(character.type.rawValue) Points de vie : \(character.lifeValue) Force arme : \(character.weaponValue)")
+        }
+        
+    }
+                  
+    private func getPlayerLabel(_ player:IdPlayer) -> String {
+        var playerLabel = ""
+                
+        switch player {
+            case .Player_A:
+                playerLabel = "Joueur A"
+            case .Player_B:
+                playerLabel = "Joueur B"
+        }
+        return playerLabel
+    }
+                  
+    private func inputNameCharacter(index i:Int) -> String {
+        var valid = true
+        var result = ""
+        repeat {
+            print("")
+            print("Entrez le nom du personnage numéro \(i)")
+            if let name = readLine() {
+                result = name
+                valid = true
+            } else {
+                print("Personnage numéro \(i) : caractères incorrects, réessayez")
+                valid = false
+            }
+            if valid == true {
+                valid = Character.isNewName(characterName: result)
+            }
+        } while (!valid)
+        
+        return result
+    }
+    
+    private func inputCharacterType() -> CharacterType? {
+        var type:CharacterType = .Warrior
         if let choice = readLine() {
             switch choice {
                 case "1" :
-                type = .Warior
+                type = .Warrior
                 case "2" :
                 type = .Magus
                 case "3" :
@@ -163,6 +195,6 @@ class Game {
 
 
 var game = Game()
-game.sayWelcome()
-game.createTeam(player: .Player_A)
-game.createTeam(player: .Player_B)
+//game.sayWelcome()
+//game.createTeam(player: .Player_A)
+game.displayTeam(player: .Player_A)
