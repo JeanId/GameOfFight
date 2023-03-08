@@ -1,21 +1,17 @@
-//: A UIKit based Playground for presenting user interface
-  
-
-import PlaygroundSupport
-
-
+//
+//  GameOfFight .swift
+//  
+//
+//  Created by Jean Barottin on 03/03/2023.
+//
 
 import Foundation
 
-<<<<<<< Updated upstream
-enum CharacterType:String {
-=======
 /*
- Class definition
+ ******** Class definition ******
  */
 
 enum CharacterType {
->>>>>>> Stashed changes
     case Warior, Magus, Colossus, Dwarf
 }
 
@@ -59,19 +55,13 @@ class Character {
     //function returns true if the characterName is new
     static func isNewName(characterName:String) -> Bool {
         for name in Character.listName {
-            if characterName == name {
-                return false
-            }
-<<<<<<< Updated upstream
-        }
-    return true
-=======
-            
+            if characterName == name return false
         }
         return true
->>>>>>> Stashed changes
     }
+    
 }
+
 class HealerCharacter:Character {
     func heal() {
     
@@ -80,17 +70,12 @@ class HealerCharacter:Character {
 
 class Player {
     
-    var player:IdPlayer
+    var player:IdPlayer = .Player_A
     var team:[Character]=[]
     var isAliveCharacter:Bool = true
     
-<<<<<<< Updated upstream
-    init(player:IdPlayer) {
-        self.player = player
-=======
     func createTeam() {
         
->>>>>>> Stashed changes
     }
     
     func createCharacter(characterName: String, type: CharacterType ){
@@ -98,10 +83,9 @@ class Player {
     }
 }
 
-<<<<<<< Updated upstream
 class Game {
-    var playerA = Player(player: .Player_A)
-    var playerB = Player(player: .Player_B)
+    var playerA = Player()
+    var playerB = Player()
     
     
     func sayWelcome() {
@@ -112,9 +96,8 @@ class Game {
     func createTeam(player:IdPlayer) {
         let currentIdPlayer = player
         var playerLabel = ""
-        var nameCharacter = ""
-        var currentPlayer = Player(player: player)
-       
+        var currentPlayer = Player()
+        
         switch currentIdPlayer {
         case .Player_A:
             playerLabel = "Joueur A"
@@ -123,82 +106,38 @@ class Game {
             playerLabel = "Joueur B"
             currentPlayer = playerB
         }
-        print("")
-        print("\(playerLabel) : contitution de son équipe de 3 personnages")
         
-        for i in 1...3 {
-            print("")
-            print("Entrez le nom du personnage numéro \(i)")
+        for i in 1..3 {
+            print("\(playerLabel) : contitution de son équipe de 3 personnages")
+            print("\(playerLabel) : Entrez le nom du personnage numéro \(i)")
             if let name = readLine() {
-                print("Personnage numéro \(i) : \(name)")
-                nameCharacter = name
+                print("personnage nuréro \(i) : \(name)")
             }
 
             print("""
-            Choisissez le type du personnage numéro \(i) en tapant le chiffre correspondant :
+            \(playerLabel) : Choisissez le type du personnage numéro \(i) en tapant le chiffre correspondant :
             1. ⚔️  Warrior     L'attaquant classique (points de vie et arme équilibrés)
             2. 🛡️  Magus       Soigne les autres membres de son équipe (points de vie élevés et arme faible en attaque)
             3. 🔪 Colossus    Imposant et trés résistant (points de vie élevés et arme moyenne)
             4. 🪓 Dwarf       Redoutable (Points de vie faibles et arme ravageuse)
             """)
 
-            if let type = getCharacterType() {
-                print("Type personnage numéro \(i) : \(type.rawValue)")
-                currentPlayer.createCharacter(characterName: nameCharacter, type: type)
+            if let name = readLine() {
+                print("personnage \(1) \(name)")
             }
-            
             
         }
         
     }
-    
-    func getCharacterType() -> CharacterType? {
-        var type:CharacterType = .Warior
-        if let choice = readLine() {
-            switch choice {
-                case "1" :
-                type = .Warior
-                case "2" :
-                type = .Magus
-                case "3" :
-                type = .Colossus
-                case "4" :
-                type = .Dwarf
-                default:
-                return nil
-            }
-        }
-        return type
-    }
 }
 
 /*
- ******** End of Class definition *************
- */
-
-/*
- ******** main programme *****************
+ ******** End of Class definition ******
  */
 
 
-var game = Game()
-game.sayWelcome()
-game.createTeam(player: .Player_A)
-game.createTeam(player: .Player_B)
-=======
-var p1 = Player()
-p1.createCharacter(characterName: "Lipaf", type: .Warior)
-var character1 = Character(characterName: "Keller", type: .Magus)
-var character2 = Character(characterName: "Pouf", type: .Colossus)
-print(character1.characterName)
-print(character1.lifeValue)
-print(character2.weaponValue)
-for name in Character.listName {
-    print(name)
-    }
+var character = Character(characterName: "Keller", type: .Magus)
 
-print(Character.listName.count)
-
-print(Character.isNewName(characterName:"Pouf"))
-print(p1.team.count)
->>>>>>> Stashed changes
+print(character.characterName)
+print(character.lifeValue)
+print(character.weaponValue)
