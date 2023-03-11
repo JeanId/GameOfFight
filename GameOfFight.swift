@@ -23,12 +23,12 @@ class Character {
     var lifeValue: Int
     var weaponValue: Int
     static var listName: [String] = []
-    var isAliveCharacter: Bool {
+    var isDeadCharacter: Bool {
         get {
             if lifeValue > 0 {
-                return true
-            } else {
                 return false
+            } else {
+                return true
             }
         }
     }
@@ -70,17 +70,12 @@ class Character {
     }
 }
 
-class HealerCharacter: Character {
-    func heal() {
-    
-    }
-}
+
 
 
 class Player {
     var playerLabel: String
     var team: [Character]=[]
-    var areAllDeadCharacters: Bool = false
    
     init(playerLabel: String) {
         self.playerLabel = playerLabel
@@ -102,12 +97,49 @@ class Game {
     func startGame() {
         sayWelcome()
         createTeam(player: playerA)
+        createTeam(player: playerB)
         displayTeam(player: playerA)
-        print("")
-        print(selectCharacter(player: playerA).characterName)
-        selectToHeal()
+        displayTeam(player: playerB)
     }
     
+    func startFight() {
+        launchAttackRound(player: playerA)
+    }
+    
+    private func launchAttackRound(player: Player) {
+        var opponentPlayer: Player {
+            if player.playerLabel == "Joueur A" {
+                return playerB
+            } else {
+                return playerA
+            }
+        }
+        
+        let soldier = selectCharacter(player: player)
+        
+        if player.team[soldier].type == .Magus {
+            if selectToHeal() {
+                let opponent = selectCharacter(player: player)
+                player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].weaponValue
+                print("\(player.team[soldier].characterName) a soigné \(player.team[opponent].characterName) son espérance de vie est maintenant de : \(player.team[opponent].lifeValue)")
+            } else {
+                let opponent = selectCharacter(player: opponentPlayer)
+                opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].weaponValue
+                print("\(player.team[soldier].characterName) a attaqué \(opponentPlayer.team[opponent].characterName) son espérance de vie est maintenant de : \(opponentPlayer.team[opponent].lifeValue)")
+            }
+
+        } else {
+            let opponent = selectCharacter(player: opponentPlayer)
+            opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].weaponValue
+            print("\(player.team[soldier].characterName) a attaqué \(opponentPlayer.team[opponent].characterName) son espérance de vie est maintenant de : \(opponentPlayer.team[opponent].lifeValue)")
+        }
+
+    }
+    private func controlIfAllCharactersAreDead(player: Player) -> Bool {
+        
+        return player.team[0].isDeadCharacter && player.team[1].isDeadCharacter && player.team[2].isDeadCharacter
+    }
+
     private func sayWelcome() {
         print("")
         print("******************************************************")
@@ -149,7 +181,7 @@ class Game {
         
     }
     
-    private func selectCharacter(player: Player) -> Character {
+    private func selectCharacter(player: Player) -> Int {
         print("")
         repeat {
             print("")
@@ -158,7 +190,7 @@ class Game {
         
             displayCharacters(player:player)
             if let pickedCharacter = inputPickedNumber(max: 3) {
-                return player.team[pickedCharacter-1]
+                return pickedCharacter-1
             }
                 
         } while (true)
@@ -176,10 +208,8 @@ class Game {
             """)
             if let val = inputPickedNumber(max: 2) {
                 if val == 2 {
-                    print("Soin")
                     return true
                 } else {
-                    print("Attaque")
                     return false
                 }
             }
@@ -261,16 +291,13 @@ class Game {
         return nil
     }
 }
-
 /*
  ******** End of Class definition *************
  */
-
 /*
  ******** main programme *****************
  */
-
-
 var game = Game()
 game.startGame()
+game.startFight()
 
