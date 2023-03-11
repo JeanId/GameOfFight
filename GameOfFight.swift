@@ -11,35 +11,44 @@ import Foundation
  ******** Class definition ******
  */
 
-enum CharacterType:String {
+enum CharacterType: String {
     case Warrior, Magus, Colossus, Dwarf
 }
 
 
 
 class Character {
-    var characterName:String
-    var type:CharacterType
-    var lifeValue:Int
-    var weaponValue:Int
-    static var listName:[String] = []
+    var characterName: String
+    var type: CharacterType
+    var lifeValue: Int
+    var weaponValue: Int
+    static var listName: [String] = []
+    var isAliveCharacter: Bool {
+        get {
+            if lifeValue > 0 {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
     
     
-    init(characterName:String,type:CharacterType) {
+    init(characterName: String,type: CharacterType) {
         self.characterName = characterName
         Character.listName.append(characterName)
         self.type = type
         switch type {
-        case .Warrior:
+        case .Warrior :
             lifeValue = 100
             weaponValue = 20
         case .Magus :
             lifeValue = 200
             weaponValue = 5
-        case .Colossus:
+        case .Colossus :
             lifeValue = 150
             weaponValue = 25
-        case .Dwarf:
+        case .Dwarf :
             lifeValue = 50
             weaponValue = 50
         }
@@ -61,7 +70,7 @@ class Character {
     }
 }
 
-class HealerCharacter:Character {
+class HealerCharacter: Character {
     func heal() {
     
     }
@@ -69,11 +78,13 @@ class HealerCharacter:Character {
 
 
 class Player {
-    var playerLabel:String = ""
-    var team:[Character]=[]
-    var isAliveCharacter:Bool = true
+    var playerLabel: String
+    var team: [Character]=[]
+    var areAllDeadCharacters: Bool = false
    
-    
+    init(playerLabel: String) {
+        self.playerLabel = playerLabel
+    }
    
     
     func createCharacter(characterName: String, type: CharacterType ){
@@ -81,45 +92,20 @@ class Player {
     }
 }
 
-class PlayerA:Player {
-    private static var playerA:Player? = nil
-    public static var shared:Player {
-        if playerA == nil {
-            playerA = Player()
-            playerA?.playerLabel = "Joueur A"
-        }
-        return playerA!
-    }
-    private override init() {
-        
-    }
-    
-}
 
-class PlayerB:Player {
-    private static var playerB:Player? = nil
-    public static var shared:Player {
-        if playerB == nil {
-            playerB = Player()
-            playerB?.playerLabel = "Joueur B"
-        }
-        return playerB!
-    }
-    private override init() {
-        
-    }
-}
 
 
 class Game {
-    private let playerA = PlayerA.shared
-    private let playerB = PlayerB.shared
+    private let playerA = Player(playerLabel: "Joueur A")
+    private let playerB = Player(playerLabel: "Joueur B")
     
     func startGame() {
         sayWelcome()
         createTeam(player: playerA)
         displayTeam(player: playerA)
         print("")
+        print(selectCharacter(player: playerA).characterName)
+        selectToHeal()
     }
     
     private func sayWelcome() {
@@ -131,7 +117,7 @@ class Game {
         print("****** Première étape constitution des équipes *******")
     }
     
-    private func createTeam(player:Player) {
+    private func createTeam(player: Player) {
         var nameCharacter = ""
                
         print("")
@@ -139,7 +125,7 @@ class Game {
         print("\(player.playerLabel) : constitution de son équipe de 3 personnages")
 
         for i in 1...3 {
-            var isGoodInput = true
+    
             nameCharacter = inputNameCharacter(index: i)
             
             repeat {
@@ -155,74 +141,124 @@ class Game {
                 if let type = inputCharacterType() {
                     print("Type personnage numéro \(i) : \(type.rawValue)")
                     player.createCharacter(characterName: nameCharacter, type: type)
-                    isGoodInput = true
-                } else {
-                    isGoodInput = false
+                    break
                 }
-            } while (!isGoodInput)
+            } while (true)
             
         }
         
     }
     
-    private func displayTeam(player:Player) {
+    private func selectCharacter(player: Player) -> Character {
+        print("")
+        repeat {
+            print("")
+            print("\(player.playerLabel) : Choisir un personnage pour le combat")
+            print("")
+        
+            displayCharacters(player:player)
+            if let pickedCharacter = inputPickedNumber(max: 3) {
+                return player.team[pickedCharacter-1]
+            }
+                
+        } while (true)
+
+    }
+    
+    private func selectToHeal() -> Bool {
+        print("")
+        repeat {
+            print("")
+            print("""
+            Choisissez le type de mission pour le prochain round  :
+            1. ⚔️  Attaque
+            2. 🩺  Soin
+            """)
+            if let val = inputPickedNumber(max: 2) {
+                if val == 2 {
+                    print("Soin")
+                    return true
+                } else {
+                    print("Attaque")
+                    return false
+                }
+            }
+        } while (true)
+    }
+    
+    private func displayTeam(player: Player) {
         print("")
         print("")
         print("\(player.playerLabel) : récapitulatif de l'équipe constituée")
         print("")
-     
-
-        for character in player.team {
-            print("""
-            Personnage    : \(character.characterName)
-            Type          : \(character.type.rawValue)
-            Points de vie : \(character.lifeValue)
-            Force arme    : \(character.weaponValue)
-            """)
-            print("")
-        }
+        
+        displayCharacters(player:player)
+        
         
     }
                   
-                  
-    private func inputNameCharacter(index i:Int) -> String {
-        var valid = true
+    private func displayCharacters(player: Player) {
+        for (i, character) in player.team.enumerated() {
+            print("""
+            \(i+1). Personnage    : \(character.characterName)
+               Type          : \(character.type.rawValue)
+               Points de vie : \(character.lifeValue)
+               Force arme    : \(character.weaponValue)
+            """)
+            print("")
+        }
+    }
+    
+    private func inputNameCharacter(index i: Int) -> String {
         var result = ""
         repeat {
             print("")
-            print("Entrez le nom du personnage numéro \(i)")
+            print("Choisissez un nom pour le personnage numéro \(i)")
             if let name = readLine() {
                 result = name
-                valid = true
             } else {
                 print("Personnage numéro \(i) : caractères incorrects, réessayez")
-                valid = false
+                continue
             }
-            if valid == true {
-                valid = Character.isNewName(characterName: result)
-            }
-        } while (!valid)
+        } while (!Character.isNewName(characterName: result))
         
         return result
     }
     
     private func inputCharacterType() -> CharacterType? {
         var type:CharacterType = .Warrior
-        if let choice = readLine() {
+        if let choice = inputPickedNumber(max: 4) {
             switch choice {
-                case "1" :
+                case 1:
                 type = .Warrior
-                case "2" :
+                case 2:
                 type = .Magus
-                case "3" :
+                case 3:
                 type = .Colossus
-                case "4" :
+                case 4:
                 type = .Dwarf
                 default:
                 return nil
             }
+            
+        } else {
+            return nil
         }
         return type
+    }
+    
+    private func inputPickedNumber(max i: Int) -> Int? {
+        
+        if let text = readLine() {
+            if let val = Int(text) {
+                if val > i || val <= 0 {
+                    return nil
+                } else {
+                    return val
+                }
+            }
+        }
+        return nil
     }
 }
 
@@ -237,3 +273,4 @@ class Game {
 
 var game = Game()
 game.startGame()
+
