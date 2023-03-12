@@ -15,13 +15,39 @@ enum CharacterType: String {
     case Warrior, Magus, Colossus, Dwarf
 }
 
+extension CharacterType {
+    var initialLifeCapital: Int {
+        switch self {
+        case .Warrior:
+            return 100
+        case .Magus:
+            return 150
+        case .Colossus:
+            return 125
+        case .Dwarf:
+            return 75
+        }
+    }
+    
+    var weaponStrengh: Int {
+        switch self {
+        case .Warrior:
+            return 50
+        case .Magus:
+            return 20
+        case .Colossus:
+            return 25
+        case .Dwarf:
+            return 75
+        }
+    }
+}
 
 
 class Character {
     var characterName: String
     var type: CharacterType
     var lifeValue: Int
-    var weaponValue: Int
     static var listName: [String] = []
     var isDeadCharacter: Bool {
         get {
@@ -33,35 +59,21 @@ class Character {
         }
     }
     
-    
     init(characterName: String,type: CharacterType) {
         self.characterName = characterName
-        Character.listName.append(characterName)
+        Character.listName.append(characterName.lowercased())
         self.type = type
-        switch type {
-        case .Warrior :
-            lifeValue = 100
-            weaponValue = 20
-        case .Magus :
-            lifeValue = 200
-            weaponValue = 5
-        case .Colossus :
-            lifeValue = 150
-            weaponValue = 25
-        case .Dwarf :
-            lifeValue = 50
-            weaponValue = 50
-        }
+        self.lifeValue = type.initialLifeCapital
     }
     
-    //function returns the number of character names
+    //function returns the number of characters
     static func getNbCharacter() -> Int {
         return Character.listName.count
     }
     
     //function returns true if the characterName is new
     static func isNewName(characterName:String) -> Bool {
-        return !Character.listName.contains(characterName)
+        return !Character.listName.contains(characterName.lowercased())
         /*for name in Character.listName {
             if characterName == name {
                 return false
@@ -108,9 +120,9 @@ class Game {
     }
     
     func startFight() {
-        while ((!controlIfAllCharactersAreDead(player: playerA)) || (!controlIfAllCharactersAreDead(player: playerB)) {
+        while ((!controlIfAllCharactersAreDead(player: playerA)) || (!controlIfAllCharactersAreDead(player: playerB))) {
             launchAttackRound(player: playerA)
-            launchAttackRound(player: playerB)
+            //launchAttackRound(player: playerB)
         }
     }
     
@@ -129,17 +141,17 @@ class Game {
             if selectToHeal() {
                 player.healNumber += 1
                 let opponent = selectCharacter(player: player)
-                player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].weaponValue
+                player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].type.weaponStrengh
                 print("\(player.team[soldier].characterName) a soigné \(player.team[opponent].characterName) son espérance de vie est maintenant de : \(player.team[opponent].lifeValue)")
             } else {
                 let opponent = selectCharacter(player: opponentPlayer)
-                opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].weaponValue
+                opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
                 print("\(player.team[soldier].characterName) a attaqué \(opponentPlayer.team[opponent].characterName) son espérance de vie est maintenant de : \(opponentPlayer.team[opponent].lifeValue)")
             }
 
         } else {
             let opponent = selectCharacter(player: opponentPlayer)
-            opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].weaponValue
+            opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
             print("\(player.team[soldier].characterName) a attaqué \(opponentPlayer.team[opponent].characterName) son espérance de vie est maintenant de : \(opponentPlayer.team[opponent].lifeValue)")
         }
 
@@ -248,7 +260,7 @@ class Game {
             \(i+1). Personnage    : \(character.characterName)
                Type          : \(character.type.rawValue)
                Points de vie : \(character.lifeValue)
-               Force arme    : \(character.weaponValue)
+               Force arme    : \(character.type.weaponStrengh)
             """)
             print("")
         }
