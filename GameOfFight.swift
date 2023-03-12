@@ -61,12 +61,13 @@ class Character {
     
     //function returns true if the characterName is new
     static func isNewName(characterName:String) -> Bool {
-        for name in Character.listName {
+        return !Character.listName.contains(characterName)
+        /*for name in Character.listName {
             if characterName == name {
                 return false
             }
         }
-    return true
+    return true */
     }
 }
 
@@ -76,18 +77,22 @@ class Character {
 class Player {
     var playerLabel: String
     var team: [Character]=[]
+    var roundNumber = 0
+    var healNumber = 0
+    var attackNumber: Int {
+        get {
+            return roundNumber - healNumber
+        }
+    }
    
     init(playerLabel: String) {
         self.playerLabel = playerLabel
     }
    
-    
     func createCharacter(characterName: String, type: CharacterType ){
         team.append(Character(characterName: characterName, type: type))
     }
 }
-
-
 
 
 class Game {
@@ -103,7 +108,10 @@ class Game {
     }
     
     func startFight() {
-        launchAttackRound(player: playerA)
+        while ((!controlIfAllCharactersAreDead(player: playerA)) || (!controlIfAllCharactersAreDead(player: playerB)) {
+            launchAttackRound(player: playerA)
+            launchAttackRound(player: playerB)
+        }
     }
     
     private func launchAttackRound(player: Player) {
@@ -114,11 +122,12 @@ class Game {
                 return playerA
             }
         }
-        
+        player.roundNumber += 1
         let soldier = selectCharacter(player: player)
         
         if player.team[soldier].type == .Magus {
             if selectToHeal() {
+                player.healNumber += 1
                 let opponent = selectCharacter(player: player)
                 player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].weaponValue
                 print("\(player.team[soldier].characterName) a soigné \(player.team[opponent].characterName) son espérance de vie est maintenant de : \(player.team[opponent].lifeValue)")
@@ -135,6 +144,7 @@ class Game {
         }
 
     }
+    
     private func controlIfAllCharactersAreDead(player: Player) -> Bool {
         
         return player.team[0].isDeadCharacter && player.team[1].isDeadCharacter && player.team[2].isDeadCharacter
@@ -185,12 +195,17 @@ class Game {
         print("")
         repeat {
             print("")
-            print("\(player.playerLabel) : Choisir un personnage pour le combat")
+            print("Pour l'équipe du \(player.playerLabel) : Choisir un personnage pour le round")
             print("")
         
             displayCharacters(player:player)
             if let pickedCharacter = inputPickedNumber(max: 3) {
-                return pickedCharacter-1
+                if player.team[pickedCharacter-1].isDeadCharacter {
+                    print(" 💀 ☠️ ☠️ ☠️ 💀 Attention ce personnage est mort !! Choisissez un autre personnage 💀 ☠️ ☠️ ☠️ 💀 ")
+                    continue
+                } else {
+                    return pickedCharacter-1
+                }
             }
                 
         } while (true)
