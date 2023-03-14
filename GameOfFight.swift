@@ -23,7 +23,7 @@ extension CharacterType {
         case .Magus:
             return 150
         case .Colossus:
-            return 125
+            return 150
         case .Dwarf:
             return 75
         }
@@ -88,21 +88,39 @@ class Character {
 
 class Player {
     var playerLabel: String
-    var team: [Character]=[]
-    var roundNumber = 0
-    var healNumber = 0
-    var attackNumber: Int {
-        get {
-            return roundNumber - healNumber
-        }
-    }
+    var team: [Character] = []
+    var history: [RoundRecorder] = []
+    var currentRoundNumber = 0
+    
    
     init(playerLabel: String) {
         self.playerLabel = playerLabel
     }
    
-    func createCharacter(characterName: String, type: CharacterType ){
-        team.append(Character(characterName: characterName, type: type))
+    func createCharacter(characterName: String, type: CharacterType) {
+        self.team.append(Character(characterName: characterName, type: type))
+    }
+    
+    func createRoundRecorder(soldierNumber: Int,opponentNumber: Int, healRound: Bool, opponentLifeValue: Int) {
+        self.history.append(RoundRecorder(soldierNumber: soldierNumber, opponentNumber: opponentNumber, healRound: healRound, opponentLifeValue: opponentLifeValue))
+    }
+    
+    
+}
+
+class RoundRecorder {
+    var soldierNumber: Int
+    var opponentNumber: Int
+    var healRound: Bool
+    var opponentLifeValue: Int
+    
+    
+    init(soldierNumber: Int, opponentNumber: Int, healRound: Bool, opponentLifeValue: Int) {
+        self.soldierNumber = soldierNumber
+        self.opponentNumber = opponentNumber
+        self.healRound = healRound
+        self.opponentLifeValue = opponentLifeValue
+        
     }
 }
 
@@ -120,41 +138,73 @@ class Game {
     }
     
     func startFight() {
-        while ((!controlIfAllCharactersAreDead(player: playerA)) || (!controlIfAllCharactersAreDead(player: playerB))) {
+        while ((!controlIfAllCharactersAreDead(player: playerA)) && (!controlIfAllCharactersAreDead(player: playerB))) {
             launchAttackRound(player: playerA)
             //launchAttackRound(player: playerB)
+        }
+        
+       
+    }
+    
+    private func returnOpponentPlayer(player: Player) -> Player {
+        if player.playerLabel == "Joueur A" {
+            return playerB
+        } else {
+            return playerA
+        }
+        
+    }
+    
+   
+    
+    private func returnOpponentRoundName(player: Player, currentRoundNumber: Int) -> String {
+        if player.history[currentRoundNumber-1].healRound {
+            return "a soigné  : " + player.team[player.history[currentRoundNumber-1].soldierNumber].characterName
+        } else {
+            return "a attaqué : " + returnOpponentPlayer(player: player).team[player.history[currentRoundNumber-1].opponentNumber].characterName
         }
     }
     
     private func launchAttackRound(player: Player) {
-        var opponentPlayer: Player {
-            if player.playerLabel == "Joueur A" {
-                return playerB
-            } else {
-                return playerA
-            }
-        }
-        player.roundNumber += 1
+        let opponentPlayer = returnOpponentPlayer(player: player)
+        
+        player.currentRoundNumber += 1
+        
         let soldier = selectCharacter(player: player)
         
         if player.team[soldier].type == .Magus {
             if selectToHeal() {
-                player.healNumber += 1
                 let opponent = selectCharacter(player: player)
                 player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].type.weaponStrengh
-                print("\(player.team[soldier].characterName) a soigné \(player.team[opponent].characterName) son espérance de vie est maintenant de : \(player.team[opponent].lifeValue)")
+                player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: true, opponentLifeValue: player.team[soldier].lifeValue)
+                displayRoundResult(player: player)
             } else {
                 let opponent = selectCharacter(player: opponentPlayer)
                 opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
-                print("\(player.team[soldier].characterName) a attaqué \(opponentPlayer.team[opponent].characterName) son espérance de vie est maintenant de : \(opponentPlayer.team[opponent].lifeValue)")
+                player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: false, opponentLifeValue: opponentPlayer.team[opponent].lifeValue)
+                displayRoundResult(player: player)
             }
 
         } else {
             let opponent = selectCharacter(player: opponentPlayer)
             opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
-            print("\(player.team[soldier].characterName) a attaqué \(opponentPlayer.team[opponent].characterName) son espérance de vie est maintenant de : \(opponentPlayer.team[opponent].lifeValue)")
+            player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: false, opponentLifeValue: opponentPlayer.team[opponent].lifeValue)
+            displayRoundResult(player: player)
+            displayRound(player: player)
         }
 
+    }
+    
+                
+    
+    private func displayRoundResult(player: Player) {
+        print("")
+        print("""
+        ********************************************************************************************************
+        **  ⚔️  ⚔️  Round numéro : \(player.currentRoundNumber)  du \(player.playerLabel)  ⚔️  ⚔️   \(player.team[player.history[player.currentRoundNumber-1].soldierNumber].characterName) \(returnOpponentRoundName(player: player, currentRoundNumber: player.currentRoundNumber)) ** crédit de vie restante : \(player.history[player.currentRoundNumber-1].opponentLifeValue)
+        ********************************************************************************************************
+        
+        """)
     }
     
     private func controlIfAllCharactersAreDead(player: Player) -> Bool {
@@ -261,7 +311,7 @@ class Game {
                Type          : \(character.type.rawValue)
                Points de vie : \(character.lifeValue)
                Force arme    : \(character.type.weaponStrengh)
-            """)
+               """)
             print("")
         }
     }
