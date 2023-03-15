@@ -15,6 +15,7 @@ enum CharacterType: String {
     case Warrior, Magus, Colossus, Dwarf
 }
 
+
 extension CharacterType {
     var initialLifeCapital: Int {
         switch self {
@@ -78,15 +79,12 @@ class Character {
 }
 
 
-
-
 class Player {
     var playerLabel: String
     var team: [Character] = []
     var history: [RoundRecorder] = []
-    var currentRoundNumber = 0
+    var roundNumber = 0
     
-   
     init(playerLabel: String) {
         self.playerLabel = playerLabel
     }
@@ -98,16 +96,14 @@ class Player {
     func createRoundRecorder(soldierNumber: Int,opponentNumber: Int, healRound: Bool, opponentLifeValue: Int) {
         self.history.append(RoundRecorder(soldierNumber: soldierNumber, opponentNumber: opponentNumber, healRound: healRound, opponentLifeValue: opponentLifeValue))
     }
-    
-    
 }
+
 
 class RoundRecorder {
     var soldierNumber: Int
     var opponentNumber: Int
     var healRound: Bool
     var opponentLifeValue: Int
-    
     
     init(soldierNumber: Int, opponentNumber: Int, healRound: Bool, opponentLifeValue: Int) {
         self.soldierNumber = soldierNumber
@@ -122,6 +118,7 @@ class RoundRecorder {
 class Game {
     private let playerA = Player(playerLabel: "Joueur A")
     private let playerB = Player(playerLabel: "Joueur B")
+    private var currentRoundNumber = 0
     
     func startGame() {
         sayWelcome()
@@ -133,7 +130,11 @@ class Game {
     
     func startFight() {
         while ((!controlIfAllCharactersAreDead(player: playerA)) && (!controlIfAllCharactersAreDead(player: playerB))) {
+            self.currentRoundNumber += 1
             launchRoundAttack(player: playerA)
+            if controlIfAllCharactersAreDead(player: playerB) {
+                break
+            }
             launchRoundAttack(player: playerB)
         }
         
@@ -156,7 +157,7 @@ class Game {
         print("")
         
         for i in 0...(player.history.count - 1) {
-            print("**  ⚔️  ⚔️  Round : \(i+1)  ⚔️  ⚔️   \(player.team[player.history[i].soldierNumber].characterName) \(returnOpponentRoundName(player: player, currentRoundNumber: i+1)) ** crédit de vie restante : \(player.history[i].opponentLifeValue)")
+            print("**  ⚔️  ⚔️  Round : \(i+1)  ⚔️  ⚔️   \(player.team[player.history[i].soldierNumber].characterName) \(returnOpponentRoundName(player: player, roundNumber: i+1)) ** crédit de vie restante : \(player.history[i].opponentLifeValue)")
             print("")
         }
     }
@@ -170,18 +171,18 @@ class Game {
         
     }
     
-    private func returnOpponentRoundName(player: Player, currentRoundNumber: Int) -> String {
-        if player.history[currentRoundNumber-1].healRound {
-            return "a soigné  : " + player.team[player.history[currentRoundNumber-1].opponentNumber].characterName
+    private func returnOpponentRoundName(player: Player, roundNumber: Int) -> String {
+        if player.history[roundNumber-1].healRound {
+            return "a soigné  : " + player.team[player.history[roundNumber-1].opponentNumber].characterName
         } else {
-            return "a attaqué : " + returnOpponentPlayer(player: player).team[player.history[currentRoundNumber-1].opponentNumber].characterName
+            return "a attaqué : " + returnOpponentPlayer(player: player).team[player.history[roundNumber-1].opponentNumber].characterName
         }
     }
     
     private func launchRoundAttack(player: Player) {
         let opponentPlayer = returnOpponentPlayer(player: player)
         
-        player.currentRoundNumber += 1
+        player.roundNumber += 1
         
         let soldier = selectCharacter(player: player)
         
@@ -211,7 +212,7 @@ class Game {
         print("")
         print("""
         ********************************************************************************************************
-        **  ⚔️  ⚔️  Round numéro : \(player.currentRoundNumber)  du \(player.playerLabel)  ⚔️  ⚔️   \(player.team[player.history[player.currentRoundNumber-1].soldierNumber].characterName) \(returnOpponentRoundName(player: player, currentRoundNumber: player.currentRoundNumber)) ** crédit de vie restante : \(player.history[player.currentRoundNumber-1].opponentLifeValue)
+        **  ⚔️  ⚔️  Round numéro : \(player.roundNumber)  du \(player.playerLabel)  ⚔️  ⚔️   \(player.team[player.history[player.roundNumber-1].soldierNumber].characterName) \(returnOpponentRoundName(player: player, roundNumber: player.roundNumber)) ** crédit de vie restante : \(player.history[player.roundNumber-1].opponentLifeValue)
         ********************************************************************************************************
         
         """)
@@ -268,7 +269,7 @@ class Game {
         repeat {
             print("")
             print("")
-            print("Pour l'équipe du \(player.playerLabel) : Choisir un personnage pour le round : \(player.currentRoundNumber)")
+            print("Pour l'équipe du \(player.playerLabel) : Choisir un personnage pour le round : \(currentRoundNumber)")
             print("")
         
             displayCharacters(player:player)
@@ -379,6 +380,8 @@ class Game {
         return nil
     }
 }
+
+
 /*
  ******** End of Class definition *************
  */
