@@ -34,7 +34,7 @@ extension CharacterType {
         case .Warrior:
             return 50
         case .Magus:
-            return 20
+            return 25
         case .Colossus:
             return 25
         case .Dwarf:
@@ -74,12 +74,6 @@ class Character {
     //function returns true if the characterName is new
     static func isNewName(characterName:String) -> Bool {
         return !Character.listName.contains(characterName.lowercased())
-        /*for name in Character.listName {
-            if characterName == name {
-                return false
-            }
-        }
-    return true */
     }
 }
 
@@ -139,11 +133,32 @@ class Game {
     
     func startFight() {
         while ((!controlIfAllCharactersAreDead(player: playerA)) && (!controlIfAllCharactersAreDead(player: playerB))) {
-            launchAttackRound(player: playerA)
-            //launchAttackRound(player: playerB)
+            launchRoundAttack(player: playerA)
+            launchRoundAttack(player: playerB)
         }
         
-       
+        if controlIfAllCharactersAreDead(player: playerA) {
+            displayWinner(player: playerB)
+        } else {
+            displayWinner(player: playerA)
+        }
+    }
+    
+    private func displayWinner(player: Player) {
+        print("")
+        print("")
+        print("")
+        print("""
+        *************************************************************************
+        ** ⚔️ 🛡️  Le \(player.playerLabel)  🛡️  ⚔️   a gagné la partie !!   🌟 🌟 bravo 🌟 🌟   **
+        *************************************************************************
+        """)
+        print("")
+        
+        for i in 0...(player.history.count - 1) {
+            print("**  ⚔️  ⚔️  Round : \(i+1)  ⚔️  ⚔️   \(player.team[player.history[i].soldierNumber].characterName) \(returnOpponentRoundName(player: player, currentRoundNumber: i+1)) ** crédit de vie restante : \(player.history[i].opponentLifeValue)")
+            print("")
+        }
     }
     
     private func returnOpponentPlayer(player: Player) -> Player {
@@ -155,17 +170,15 @@ class Game {
         
     }
     
-   
-    
     private func returnOpponentRoundName(player: Player, currentRoundNumber: Int) -> String {
         if player.history[currentRoundNumber-1].healRound {
-            return "a soigné  : " + player.team[player.history[currentRoundNumber-1].soldierNumber].characterName
+            return "a soigné  : " + player.team[player.history[currentRoundNumber-1].opponentNumber].characterName
         } else {
             return "a attaqué : " + returnOpponentPlayer(player: player).team[player.history[currentRoundNumber-1].opponentNumber].characterName
         }
     }
     
-    private func launchAttackRound(player: Player) {
+    private func launchRoundAttack(player: Player) {
         let opponentPlayer = returnOpponentPlayer(player: player)
         
         player.currentRoundNumber += 1
@@ -176,7 +189,7 @@ class Game {
             if selectToHeal() {
                 let opponent = selectCharacter(player: player)
                 player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].type.weaponStrengh
-                player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: true, opponentLifeValue: player.team[soldier].lifeValue)
+                player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: true, opponentLifeValue: player.team[opponent].lifeValue)
                 displayRoundResult(player: player)
             } else {
                 let opponent = selectCharacter(player: opponentPlayer)
@@ -190,12 +203,9 @@ class Game {
             opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
             player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: false, opponentLifeValue: opponentPlayer.team[opponent].lifeValue)
             displayRoundResult(player: player)
-            displayRound(player: player)
         }
 
     }
-    
-                
     
     private func displayRoundResult(player: Player) {
         print("")
@@ -257,13 +267,14 @@ class Game {
         print("")
         repeat {
             print("")
-            print("Pour l'équipe du \(player.playerLabel) : Choisir un personnage pour le round")
+            print("")
+            print("Pour l'équipe du \(player.playerLabel) : Choisir un personnage pour le round : \(player.currentRoundNumber)")
             print("")
         
             displayCharacters(player:player)
             if let pickedCharacter = inputPickedNumber(max: 3) {
                 if player.team[pickedCharacter-1].isDeadCharacter {
-                    print(" 💀 ☠️ ☠️ ☠️ 💀 Attention ce personnage est mort !! Choisissez un autre personnage 💀 ☠️ ☠️ ☠️ 💀 ")
+                    print(" 💀 ☠️ ☠️ ☠️ 💀 Attention ce personnage est mort !! Choisissez un personnage vivant ! 💀 ☠️ ☠️ ☠️ 💀 ")
                     continue
                 } else {
                     return pickedCharacter-1
@@ -307,10 +318,10 @@ class Game {
     private func displayCharacters(player: Player) {
         for (i, character) in player.team.enumerated() {
             print("""
-            \(i+1). Personnage    : \(character.characterName)
-               Type          : \(character.type.rawValue)
-               Points de vie : \(character.lifeValue)
-               Force arme    : \(character.type.weaponStrengh)
+               \(i+1). Personnage    : \(character.characterName)
+                  Type          : \(character.type.rawValue)
+                  Points de vie : \(character.lifeValue)
+                  Force arme    : \(character.type.weaponStrengh)
                """)
             print("")
         }
@@ -377,4 +388,4 @@ class Game {
 var game = Game()
 game.startGame()
 game.startFight()
-
+//game.testFonction()
