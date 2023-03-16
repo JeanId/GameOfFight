@@ -161,7 +161,7 @@ class Game {
         """)
         print("")
         
-        for i in 0...(player.history.count - 1) {
+        for i in 0..<player.history.count {
             print("**  ⚔️  ⚔️  Round : \(i+1)  ⚔️  ⚔️   \(player.team[player.history[i].soldierNumber].characterName) \(returnOpponentRoundName(player: player, currentRoundNumber: i+1)) ** crédit de vie restante : \(player.history[i].opponentLifeValue)")
             print("")
         }
@@ -202,6 +202,9 @@ class Game {
             } else {
                 let opponent = selectCharacter(player: opponentPlayer)
                 opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
+                if opponentPlayer.team[opponent].lifeValue < 0 {
+                    opponentPlayer.team[opponent].lifeValue = 0
+                }
                 player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: false, opponentLifeValue: opponentPlayer.team[opponent].lifeValue)
                 displayRoundResult(player: player)
             }
@@ -209,6 +212,9 @@ class Game {
         } else {
             let opponent = selectCharacter(player: opponentPlayer)
             opponentPlayer.team[opponent].lifeValue = opponentPlayer.team[opponent].lifeValue - player.team[soldier].type.weaponStrengh
+            if opponentPlayer.team[opponent].lifeValue < 0 {
+                opponentPlayer.team[opponent].lifeValue = 0
+            }
             player.createRoundRecorder(soldierNumber: soldier, opponentNumber: opponent, healRound: false, opponentLifeValue: opponentPlayer.team[opponent].lifeValue)
             displayRoundResult(player: player)
         }
