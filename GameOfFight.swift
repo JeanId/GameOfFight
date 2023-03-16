@@ -8,43 +8,48 @@
 import Foundation
 
 /*
- ******** Class definition ******
+ ******************************** Class definition ***************
  */
 
+// different type of characters definition
 enum CharacterType: String {
-    case Warrior, Magus, Colossus, Dwarf
+    case warrior = "Warrior"
+    case magus = "Magus"
+    case colossus = "Colossus"
+    case dwarf = "Dwarf"
 }
 
-
+// additional features for the characters
 extension CharacterType {
     var initialLifeCapital: Int {
         switch self {
-        case .Warrior:
+        case .warrior:
             return 100
-        case .Magus:
+        case .magus:
             return 150
-        case .Colossus:
+        case .colossus:
             return 150
-        case .Dwarf:
+        case .dwarf:
             return 75
         }
     }
     
     var weaponStrengh: Int {
         switch self {
-        case .Warrior:
+        case .warrior:
             return 50
-        case .Magus:
+        case .magus:
             return 25
-        case .Colossus:
+        case .colossus:
             return 25
-        case .Dwarf:
+        case .dwarf:
             return 75
         }
     }
 }
 
 
+// class defining the character's role, features and state
 class Character {
     var characterName: String
     var type: CharacterType
@@ -67,18 +72,14 @@ class Character {
         self.lifeValue = type.initialLifeCapital
     }
     
-    //function returns the number of characters
-    static func getNbCharacter() -> Int {
-        return Character.listName.count
-    }
-    
-    //function returns true if the characterName is new
+        
+    // returns true if the characterName is new (indifferent for upper or lower case)
     static func isNewName(characterName:String) -> Bool {
         return !Character.listName.contains(characterName.lowercased())
     }
 }
 
-
+// class defining the team and the attacks history for each player
 class Player {
     var playerLabel: String
     var team: [Character] = []
@@ -87,17 +88,19 @@ class Player {
     init(playerLabel: String) {
         self.playerLabel = playerLabel
     }
-   
+
+    // creation of a character in the team for each player
     func createCharacter(characterName: String, type: CharacterType) {
         self.team.append(Character(characterName: characterName, type: type))
     }
     
+    // creation of a recording of a round for each player
     func createRoundRecorder(soldierNumber: Int,opponentNumber: Int, healRound: Bool, opponentLifeValue: Int) {
         self.history.append(RoundRecorder(soldierNumber: soldierNumber, opponentNumber: opponentNumber, healRound: healRound, opponentLifeValue: opponentLifeValue))
     }
 }
 
-
+// class defining the data recorded for each round
 class RoundRecorder {
     var soldierNumber: Int
     var opponentNumber: Int
@@ -113,12 +116,13 @@ class RoundRecorder {
     }
 }
 
-
+// class that manages the flow of the game
 class Game {
     private let playerA = Player(playerLabel: "Joueur A")
     private let playerB = Player(playerLabel: "Joueur B")
     private var currentRoundNumber = 0
     
+    // game launch : teams constitution and summary display of the teams
     func startGame() {
         sayWelcome()
         createTeam(player: playerA)
@@ -127,6 +131,7 @@ class Game {
         displayTeam(player: playerB)
     }
     
+    // fight launch winner detection and result display
     func startFight() {
         while ((!controlIfAllCharactersAreDead(player: playerA)) && (!controlIfAllCharactersAreDead(player: playerB))) {
             self.currentRoundNumber += 1
@@ -144,6 +149,7 @@ class Game {
         }
     }
     
+    // display winner and result
     private func displayWinner(player: Player) {
         print("")
         print("")
@@ -161,6 +167,7 @@ class Game {
         }
     }
     
+    // return of the opposing player
     private func returnOpponentPlayer(player: Player) -> Player {
         if player.playerLabel == "Joueur A" {
             return playerB
@@ -170,6 +177,7 @@ class Game {
         
     }
     
+    // return the fight wording of the opponent
     private func returnOpponentRoundName(player: Player, currentRoundNumber: Int) -> String {
         if player.history[currentRoundNumber-1].healRound {
             return "a soigné  : " + player.team[player.history[currentRoundNumber-1].opponentNumber].characterName
@@ -178,13 +186,14 @@ class Game {
         }
     }
     
+    // launch an attack by a player
     private func launchRoundAttack(player: Player) {
         let opponentPlayer = returnOpponentPlayer(player: player)
         
         
         let soldier = selectCharacter(player: player)
         
-        if player.team[soldier].type == .Magus {
+        if player.team[soldier].type == .magus {
             if selectToHeal() {
                 let opponent = selectCharacter(player: player)
                 player.team[opponent].lifeValue = player.team[opponent].lifeValue + player.team[soldier].type.weaponStrengh
@@ -206,6 +215,7 @@ class Game {
 
     }
     
+    // display the attack result
     private func displayRoundResult(player: Player) {
         print("")
         print("""
@@ -216,11 +226,13 @@ class Game {
         """)
     }
     
+    // control if a player lost
     private func controlIfAllCharactersAreDead(player: Player) -> Bool {
         
         return player.team[0].isDeadCharacter && player.team[1].isDeadCharacter && player.team[2].isDeadCharacter
     }
 
+    // display the welcome message
     private func sayWelcome() {
         print("")
         print("******************************************************")
@@ -230,6 +242,7 @@ class Game {
         print("****** Première étape constitution des équipes *******")
     }
     
+    // create team of 3 characters for one player
     private func createTeam(player: Player) {
         var nameCharacter = ""
                
@@ -262,6 +275,7 @@ class Game {
         
     }
     
+    // select one alive character of the player team
     private func selectCharacter(player: Player) -> Int {
         print("")
         repeat {
@@ -284,6 +298,7 @@ class Game {
 
     }
     
+    // select if the round is to give a heal
     private func selectToHeal() -> Bool {
         print("")
         repeat {
@@ -303,6 +318,7 @@ class Game {
         } while (true)
     }
     
+    // summary display of team for a player
     private func displayTeam(player: Player) {
         print("")
         print("")
@@ -313,7 +329,8 @@ class Game {
         
         
     }
-                  
+    
+    // display the team characters for a player
     private func displayCharacters(player: Player) {
         for (i, character) in player.team.enumerated() {
             print("""
@@ -326,6 +343,7 @@ class Game {
         }
     }
     
+    // input the character name and control if the name exists
     private func inputNameCharacter(index i: Int) -> String {
         var result = ""
         repeat {
@@ -342,18 +360,19 @@ class Game {
         return result
     }
     
+    // input the character type and control if valid
     private func inputCharacterType() -> CharacterType? {
-        var type:CharacterType = .Warrior
+        var type:CharacterType = .warrior
         if let choice = inputPickedNumber(max: 4) {
             switch choice {
                 case 1:
-                type = .Warrior
+                type = .warrior
                 case 2:
-                type = .Magus
+                type = .magus
                 case 3:
-                type = .Colossus
+                type = .colossus
                 case 4:
-                type = .Dwarf
+                type = .dwarf
                 default:
                 return nil
             }
@@ -364,6 +383,7 @@ class Game {
         return type
     }
     
+    // pick of a number between 0 and max
     private func inputPickedNumber(max i: Int) -> Int? {
         
         if let text = readLine() {
@@ -381,8 +401,10 @@ class Game {
 
 
 /*
- ******** End of Class definition *************
+ *************************** End of Class definition *************
  */
+
+
 /*
  ******** main programme *****************
  */
